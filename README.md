@@ -1,20 +1,22 @@
 ## Android性能优化
 
-### Plugin
+### 清单
 
-#### FileProviderPlugin
-```
-plugins {
-    id(libs.plugins.androidApplication.get().pluginId)
-    id("FileProviderPlugin")
-}
-```
-**启动耗时优化**
+**分析**
+* - [ ] 线程使用追踪
 
-耗时点：
-* FileProvider 初始化发生在 application.attachBaseContext 之后, application.onCreate 之前，其中 mStrategy 初始化较为耗时。
+**优化**
+* - [x] [FileProvider优化](./buildSrc/README_FileProvider.md)
+* - [ ] WorkManager优化
+* - [ ] Firebase优化
+* - [ ] 线程内存优化：减少线程初始化时申请的内存大小
+* - [ ] 线程使用优化：
+  * - [ ] 设置AsyncTask允许超时
+  * - [ ] 专门开一个线程用来创建线程，因为创建线程也有开销
+  * - [ ] 全局使用一个大线程池（可选）
+* - [ ] SharedPreference卡顿优化
 
-修改点：
-* 通过asm修改字节码，在 FileProvider 初始化时设置 ProviderInfo.grantUriPermissions = false，使其不初始化 mStrategy。 同时修改为在使用 mStrategy 时判断是否为空，若为空再进行初始化。转移耗时到使用时。
+**其他了解点**
+* Appsflyer性能较差，对启动耗时和卡顿有影响，经常在后台开线程做任务
 
-[修改后代码参考](./buildSrc/FileProviderCodeSample.md)
+
