@@ -1,53 +1,64 @@
 package com.janbean.androidperformance;
 
-import android.content.Context;
-import android.content.pm.ProviderInfo;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.CancellationSignal;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
+import android.util.Log;
 
-public class Test2 extends FileProvider {
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-    class PathStrategy {
+public class Test2 {
+    private static ExecutorService service = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5L, TimeUnit.SECONDS, new SynchronousQueue());
+    private static ExecutorService service2 = Executors.newSingleThreadExecutor();
 
-    }
+    public static void test() {
+        service2.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.i("hjianbin", "run singleThread "+Thread.currentThread().getName());
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
 
-    private PathStrategy mStrategy;
-    private int mResourceId;
-    private String authority;
+                }
+            }
+        });
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(40);
+                } catch (InterruptedException e) {
 
-    @Override
-    public void attachInfo(@NonNull Context context, @NonNull ProviderInfo info) {
-        if (!info.grantUriPermissions) {
-            throw new SecurityException("Provider must grant uri permissions");
-        }
+                }
+                System.out.println("test");
+            }
+        }).start();
 
-        info.grantUriPermissions = false;
-        try {
-            super.attachInfo(context, info);
-            this.authority = info.authority.split(";")[0];
-        } catch (Throwable t) {
-            // ignore
-            t.printStackTrace();
-        }
-        info.grantUriPermissions = true;
-    }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
 
-    @Nullable
-    @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable Bundle queryArgs, @Nullable CancellationSignal cancellationSignal) {
-        if (mStrategy == null) {
-            mStrategy = getPathStrategy(getContext(), authority, mResourceId);
-        }
-        return super.query(uri, projection, queryArgs, cancellationSignal);
-    }
+                }
+                System.out.println("test2");
+            }
+        }, "test").start();
 
-    private PathStrategy getPathStrategy(Context context, String authority, int resourceId) {
-        return new PathStrategy();
+        service.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+
+                }
+                System.out.println("test3");
+            }
+        });
     }
 }

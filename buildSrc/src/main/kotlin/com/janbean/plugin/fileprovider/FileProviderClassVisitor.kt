@@ -1,7 +1,6 @@
 package com.janbean.plugin.fileprovider
 
 import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -47,16 +46,6 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
     ) {
         println("FileProviderClassVisitor: visit")
         super.visit(version, access, name, signature, superName, interfaces)
-    }
-
-    override fun visitField(
-        access: Int,
-        name: String?,
-        descriptor: String?,
-        signature: String?,
-        value: Any?
-    ): FieldVisitor {
-        return super.visitField(access, name, descriptor, signature, value)
     }
 
     override fun visitEnd() {

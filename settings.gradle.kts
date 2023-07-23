@@ -1,3 +1,4 @@
+include(":thread")
 
 pluginManagement {
     repositories {
