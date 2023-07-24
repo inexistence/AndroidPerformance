@@ -4,14 +4,16 @@ import android.util.Log
 import java.util.concurrent.ConcurrentHashMap
 
 object ThreadTracker {
-    val map = ConcurrentHashMap<String, Record>()
+    var DEBUG = true
+    val map by lazy { ConcurrentHashMap<String, Record>() }
 
     @JvmStatic
-    fun trace(type: String, name: String): Record {
+    fun trace(type: String, name: String): Record? {
+        if (!DEBUG) return null
         val prefix = getPrefix(type, name)
         Log.d("hjianbin", "trace $type $name $prefix")
 
-        val record = map.getOrPut(prefix) {
+        val record = map.getOrPut("$type:$prefix") {
             Record().apply {
                 this.type = type
                 this.prefix = prefix
@@ -23,14 +25,10 @@ object ThreadTracker {
     }
 
     private fun getPrefix(type: String, name: String): String {
-        val index = name.lastIndexOf("-").let {
-            if (it < 0) name.lastIndexOf("#")
-            else it
+        if (type == "Thread") {
+            return name
         }
-        if (index < 0) {
-            return type + ": " + name
-        }
-        return type + ": " + name.substring(0, index)
+        return name.replace(Regex("-\\d+$"), "").replace(Regex("#\\d+$"), "")
     }
 
     @JvmStatic

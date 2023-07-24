@@ -22,6 +22,10 @@ class PThread: Thread {
     constructor(group: ThreadGroup?,runnable: Runnable?, name: String?, prefix: String?): super(group, runnable, ThreadUtils.makeThreadName(name, prefix))
     constructor(group: ThreadGroup?,runnable: Runnable?, name: String?, stackSize: Long, prefix: String?): super(group, runnable, ThreadUtils.makeThreadName(name, prefix), stackSize)
 
+    fun setName(name: String, prefix: String) {
+        super.setName(ThreadUtils.makeThreadName(name, prefix))
+    }
+
     override fun start() {
         if (trace != false) {
             record = ThreadTracker.trace(type ?: "Thread", name)

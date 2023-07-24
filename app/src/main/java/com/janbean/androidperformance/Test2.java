@@ -1,25 +1,25 @@
 package com.janbean.androidperformance;
 
-
-import android.util.Log;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadFactory;
 
 public class Test2 {
-    private static ExecutorService service = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5L, TimeUnit.SECONDS, new SynchronousQueue());
-    private static ExecutorService service2 = Executors.newSingleThreadExecutor();
+        private static ExecutorService service = Executors.newFixedThreadPool(5);
+    private static ExecutorService service5 = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r);
+        t.setName("Hello");
+        return t;
+    });
+
+//    private static ExecutorService service2 = Executors.newSingleThreadExecutor();
 
     public static void test() {
-        service2.execute(new Runnable() {
+        service5.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Log.i("hjianbin", "run singleThread "+Thread.currentThread().getName());
-                    Thread.sleep(100);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
 
                 }

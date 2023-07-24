@@ -15,7 +15,10 @@ public class ThreadUtils {
     }
 
     public static String makeThreadName(String name, String prefix) {
-        return name == null ? prefix : (name.startsWith(MARK) || TextUtils.isEmpty(prefix) ? name : (prefix + "#" + name));
+        if (!TextUtils.isEmpty(name) && !name.startsWith(MARK) && !TextUtils.isEmpty(prefix)) {
+            return (prefix + "/" + name);
+        }
+        return TextUtils.isEmpty(name) ? prefix : (name.startsWith(MARK) || TextUtils.isEmpty(prefix) ? name : (prefix + "#" + name));
     }
 
     public static Thread setThreadName(final Thread t, final String prefix) {

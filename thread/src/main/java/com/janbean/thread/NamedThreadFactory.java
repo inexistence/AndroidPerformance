@@ -8,9 +8,10 @@ import com.janbean.thread.util.ThreadTracker;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class NamedThreadFactory implements ThreadFactory {
+@KeepThread
+class NamedThreadFactory implements ThreadFactory {
 
-    public String type = "ThreadFactory";
+    public String type = "NamedThreadFactory";
 
     /**
      * Used by {@code ThreadTransformer} for thread renaming
@@ -67,7 +68,13 @@ public class NamedThreadFactory implements ThreadFactory {
             record = ThreadTracker.trace(type, t.getName());
             return t;
         }
-        Thread t = setThreadName(this.factory.newThread(r), this.name);
+        Thread t = this.factory.newThread(r);
+        if (t instanceof PThread) {
+            ((PThread) t).setType(type);
+            ((PThread) t).setTrace(false);
+        } else {
+            t = setThreadName(t, this.name);
+        }
         record = ThreadTracker.trace(type, t.getName());
         return t;
     }

@@ -5,6 +5,7 @@ import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.commons.AdviceAdapter
 
 class MethodReplaceVisitor(
     api: Int,
@@ -103,7 +104,8 @@ class MethodReplaceVisitor(
             api,
             transferMethodList,
             transferTypeList,
-            super.visitMethod(access, name, descriptor, signature, exceptions)
+            super.visitMethod(access, name, descriptor, signature, exceptions),
+            access, name, descriptor
         )
     }
 
@@ -111,8 +113,9 @@ class MethodReplaceVisitor(
         api: Int,
         private val transferMethodList: List<TransferMethod>,
         private val transferTypeList: List<TransferType>,
-        mv: MethodVisitor
-    ) : MethodVisitor(api, mv) {
+        mv: MethodVisitor,
+        access: Int, name: String?, descriptor: String?
+    ) : AdviceAdapter(api, mv, access, name, descriptor) {
 
         override fun visitTypeInsn(opcode: Int, type: String?) {
             Log.d(TAG, "visitTypeInsn $opcode $type")
@@ -142,7 +145,7 @@ class MethodReplaceVisitor(
 
             if (to != null) {
                 Log.d(TAG, "visitMethodInsn to $to")
-                transferMethod.beforeReplace?.invoke(mv)
+                transferMethod.beforeReplace?.invoke(this)
                 super.visitMethodInsn(
                     opcode,
                     to.owner,
@@ -150,7 +153,7 @@ class MethodReplaceVisitor(
                     to.descriptor,
                     to.isInterface ?: (opcode == Opcodes.INVOKEINTERFACE)
                 )
-                transferMethod.afterReplace?.invoke(mv)
+                transferMethod.afterReplace?.invoke(this)
             } else {
                 super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
             }

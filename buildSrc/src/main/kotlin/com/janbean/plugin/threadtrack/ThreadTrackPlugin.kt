@@ -14,7 +14,7 @@ abstract class ThreadTrackPlugin: Plugin<Project> {
         // TODO dependiences
         androidComponents.onVariants { variant ->
             variant.instrumentation.transformClassesWith(ThreadTrackTransform::class.java, InstrumentationScope.ALL) {}
-            variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS)
+            variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_CLASSES)
         }
     }
 }
