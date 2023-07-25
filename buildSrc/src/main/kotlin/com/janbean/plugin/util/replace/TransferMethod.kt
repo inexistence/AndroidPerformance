@@ -10,6 +10,8 @@ data class TransferMethod(
     val afterReplace: ((mv: MethodVisitor) -> Unit)? = null
 )
 
+data class TransferSuperClass(val from: String, val to: String)
+
 data class TransferType(
     val opcode: Int,
     val from: String,

@@ -12,6 +12,7 @@ class MethodReplaceVisitor(
     classVisitor: ClassVisitor?,
     val transferMethodList: List<TransferMethod>,
     val transferTypeList: List<TransferType>,
+    val transferSuperClassList: List<TransferSuperClass>,
 ) : ClassVisitor(api, classVisitor) {
     companion object {
         const val TAG = "MethodReplaceVisitor"
@@ -22,6 +23,7 @@ class MethodReplaceVisitor(
         private var classVisitor: ClassVisitor? = null
         private val transferMethodList = ArrayList<TransferMethod>()
         private val transferTypeList = ArrayList<TransferType>()
+        private val transferSuperClassList = ArrayList<TransferSuperClass>()
 
         fun api(api: Int): Builder {
             this.api = api
@@ -45,9 +47,18 @@ class MethodReplaceVisitor(
             if (from.name != "<init>" || to.name != "<init>") {
                 throw IllegalArgumentException("should be init function")
             }
+            transferSuperClass(from.owner, to.owner)
             transferType(Opcodes.NEW, from.owner, to.owner)
             transferMethod(Opcodes.INVOKESPECIAL, from, to, beforeReplace, afterReplace)
             return this
+        }
+
+        fun transferSuperClass(from: String, to: String) {
+            transferSuperClass(TransferSuperClass(from, to))
+        }
+
+        fun transferSuperClass(clazz: TransferSuperClass) {
+            transferSuperClassList.add(clazz)
         }
 
         fun transferMethod(
@@ -76,9 +87,55 @@ class MethodReplaceVisitor(
                 this.api,
                 this.classVisitor,
                 transferMethodList,
-                transferTypeList
+                transferTypeList,
+                transferSuperClassList
             )
         }
+    }
+
+    override fun visit(
+        version: Int,
+        access: Int,
+        name: String?,
+        signature: String?,
+        superName: String?,
+        interfaces: Array<out String>?
+    ) {
+        Log.d(
+            TAG,
+            "visit $version $access $name $signature $superName ${
+                interfaces?.joinToString(
+                    ",",
+                    "[",
+                    "]"
+                )
+            }"
+        )
+        if ((superName != null || !interfaces.isNullOrEmpty())) {
+            for (transfer in transferSuperClassList) {
+                if (transfer.from == superName) {
+                    super.visit(version, access, name, signature, transfer.to, interfaces)
+                    return
+                }
+                if (interfaces != null) {
+                    var hasChanged = false
+                    val newInterfaces = Array(interfaces.size) { index ->
+                        val origin = interfaces[index]
+                        if (origin == transfer.from) {
+                            hasChanged = true
+                            transfer.to
+                        } else {
+                            origin
+                        }
+                    }
+                    if (hasChanged) {
+                        super.visit(version, access, name, signature, superName, newInterfaces)
+                        return
+                    }
+                }
+            }
+        }
+        super.visit(version, access, name, signature, superName, interfaces)
     }
 
     override fun visitField(
@@ -88,7 +145,7 @@ class MethodReplaceVisitor(
         signature: String?,
         value: Any?
     ): FieldVisitor {
-        Log.i(TAG, "visitField $access $name $descriptor $signature $value")
+        Log.d(TAG, "visitField $access $name $descriptor $signature $value")
         return super.visitField(access, name, descriptor, signature, value)
     }
 
@@ -99,7 +156,7 @@ class MethodReplaceVisitor(
         signature: String?,
         exceptions: Array<out String>?
     ): MethodVisitor {
-        Log.i(TAG, "visitMethod $access $name $descriptor $signature $exceptions")
+        Log.d(TAG, "visitMethod $access $name $descriptor $signature $exceptions")
         return MethodReplaceAdapter(
             api,
             transferMethodList,

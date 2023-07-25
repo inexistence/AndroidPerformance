@@ -72,9 +72,8 @@ class NamedThreadFactory implements ThreadFactory {
         if (t instanceof PThread) {
             ((PThread) t).setType(type);
             ((PThread) t).setTrace(false);
-        } else {
-            t = setThreadName(t, this.name);
         }
+        t = setThreadName(t, this.name);
         record = ThreadTracker.trace(type, t.getName());
         return t;
     }

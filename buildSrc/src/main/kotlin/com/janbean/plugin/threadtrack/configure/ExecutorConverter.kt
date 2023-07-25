@@ -10,6 +10,21 @@ class ExecutorConverter: BaseConverter() {
     override fun build(classContext: ClassContext, builder: MethodReplaceVisitor.Builder) {
         super.build(classContext, builder)
         builder.transferMethod(
+            Opcodes.INVOKESTATIC,
+            from = Method(
+                "java/util/concurrent/Executors",
+                "defaultThreadFactory",
+                "()Ljava/util/concurrent/ThreadFactory;"
+            ),
+            to = Method(
+                "com/janbean/thread/Executors",
+                "defaultThreadFactory",
+                "(Ljava/lang/String;)Ljava/util/concurrent/ThreadFactory;"
+            ),
+            beforeReplace = { mv ->
+                putClassNameToArg(classContext, mv)
+            }
+        ).transferMethod(
                 Opcodes.INVOKESTATIC,
                 from = Method(
                     "java/util/concurrent/Executors",

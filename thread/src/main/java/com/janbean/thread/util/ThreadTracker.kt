@@ -2,10 +2,20 @@ package com.janbean.thread.util
 
 import android.util.Log
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 object ThreadTracker {
     var DEBUG = true
     val map by lazy { ConcurrentHashMap<String, Record>() }
+
+    @JvmStatic
+    fun getCurrentThread(): List<ThreadInfo> {
+        val allStackTraces = Thread.getAllStackTraces()
+        return allStackTraces.map {
+            val thread = it.key
+            ThreadInfo(thread.id, thread.name, thread.state)
+        }
+    }
 
     @JvmStatic
     fun trace(type: String, name: String): Record? {
@@ -30,9 +40,17 @@ object ThreadTracker {
         }
         return name.replace(Regex("-\\d+$"), "").replace(Regex("#\\d+$"), "")
     }
+    @JvmStatic
+    fun startRun(type: String, name: String): Record? {
+        val key = "$type:${getPrefix(type, name)}"
+        return map[key]?.apply {
+            startRun(name, this)
+        }
+    }
 
     @JvmStatic
     fun startRun(name: String?, record: Record?) {
+        Log.d("hjianbin", "startRun $name ${record?.type} ${record?.prefix}")
         record ?: return
         record.lastRunAt = System.currentTimeMillis()
         val history = History().apply {
@@ -55,9 +73,14 @@ object ThreadTracker {
         var prefix: String = ""
         var startCnt: Int = 0
         var runCnt: Int = 0
-        val history = ArrayList<History>()
+        val history = CopyOnWriteArrayList<History>()
         var createdAt: Long = 0
         var lastRunAt: Long = 0
+        var corePoolSize: Int? = null
+        var maximumPoolSize: Int? = null
+        var keepAliveTime: Long? = null
+        var allowCoreThreadTimeout: Boolean? = null
+
         val avgCost
             get() = if (history.size == 0) -1 else history.sumOf { it.cost } / runCnt.coerceAtLeast(
                 1
@@ -65,7 +88,11 @@ object ThreadTracker {
 
         override fun toString(): String {
             val finalAvgCost = avgCost
-            return "Record(type='$type', prefix='$prefix', start_cnt=$startCnt, run_cnt=$runCnt, avg_cost=${if (finalAvgCost == -1) "None" else finalAvgCost})"
+            return if (corePoolSize == null) {
+                "Record(type='$type', prefix='$prefix', start_cnt=$startCnt, run_cnt=$runCnt, avg_cost=${if (finalAvgCost == -1) "None" else finalAvgCost})"
+            } else {
+                "Record(type='$type', prefix='$prefix', start_cnt=$startCnt, run_cnt=$runCnt, avg_cost=${if (finalAvgCost == -1) "None" else finalAvgCost} corePoolSize=$corePoolSize maximumPoolSize=$maximumPoolSize keepAliveTime=$keepAliveTime allowCoreThreadTimeout=$allowCoreThreadTimeout)"
+            }
         }
     }
 

@@ -12,7 +12,7 @@ class FileProviderPlugin : Plugin<Project> {
         Log.i("FileProviderPlugin", "apply")
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
         androidComponents.onVariants { variant ->
-            Log.i("FileProviderPlugin", "onVariants $variant")
+            Log.d("FileProviderPlugin", "onVariants $variant")
             variant.instrumentation.transformClassesWith(FileProviderTransform::class.java, InstrumentationScope.ALL) {}
             variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS)
         }

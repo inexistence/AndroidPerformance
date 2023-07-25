@@ -7,7 +7,7 @@ import com.janbean.thread.util.ThreadUtils
  * Initiazlize {@code Thread} with new name, these constructors are used by {@code ThreadTrackTransformer} for renaming
  */
 @KeepThread
-class PThread: Thread {
+open class PThread: Thread {
     @Volatile
     private var record: ThreadTracker.Record? = null
     var type: String? = null
@@ -28,7 +28,10 @@ class PThread: Thread {
 
     override fun start() {
         if (trace != false) {
-            record = ThreadTracker.trace(type ?: "Thread", name)
+            if (type.isNullOrBlank()) {
+                type = this.javaClass.name
+            }
+            record = ThreadTracker.trace(type ?: this.javaClass.name, name)
         }
         super.start()
     }

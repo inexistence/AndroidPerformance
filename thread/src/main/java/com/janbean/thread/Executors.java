@@ -2,37 +2,58 @@ package com.janbean.thread;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @KeepThread
 public class Executors {
+    public static ThreadFactory defaultThreadFactory(String name) {
+        return new PDefaultThreadFactory(name);
+    }
+
     public static ExecutorService newSingleThreadExecutor(String name) {
-        NamedThreadFactory factory = new NamedThreadFactory(name);
-        factory.type = "SingleThread";
+//        NamedThreadFactory factory = new NamedThreadFactory(name);
+//        factory.type = "SingleThread";
         // TODO 自己实现，好计算任务耗时
-        return java.util.concurrent.Executors.newSingleThreadExecutor(factory);
+//        return java.util.concurrent.Executors.newSingleThreadExecutor(factory);
+        PThreadPoolExecutor executor = new PThreadPoolExecutor(1, 1,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(),
+                name);
+        executor.setType("SingleThread");
+        return executor;
     }
 
     public static ExecutorService newSingleThreadExecutor(ThreadFactory factory, String name) {
-        NamedThreadFactory proxyFactory = new NamedThreadFactory(factory, name);
-        proxyFactory.type = "SingleThread";
-        // TODO 自己实现，好计算任务耗时
-        return java.util.concurrent.Executors.newSingleThreadExecutor(proxyFactory);
+//        NamedThreadFactory proxyFactory = new NamedThreadFactory(factory, name);
+//        proxyFactory.type = "SingleThread";
+//        // TODO 自己实现，好计算任务耗时
+//        return java.util.concurrent.Executors.newSingleThreadExecutor(proxyFactory);
+        PThreadPoolExecutor executor = new PThreadPoolExecutor(1, 1,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(),
+                factory, name);
+        executor.setType("SingleThread");
+        return executor;
     }
 
     public static ExecutorService newFixedThreadPool(int nThreads, String name) {
-        NamedThreadFactory proxyFactory = new NamedThreadFactory(name);
-        proxyFactory.type = "FixedThread";
-        // TODO 自己实现，好计算任务耗时
-        return java.util.concurrent.Executors.newFixedThreadPool(nThreads, proxyFactory);
+        PThreadPoolExecutor executorService = new PThreadPoolExecutor(nThreads, nThreads,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), name);
+        executorService.setType("FixedThread");
+        return executorService;
     }
 
     public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory factory, String name) {
-        NamedThreadFactory proxyFactory = new NamedThreadFactory(factory, name);
-        proxyFactory.type = "FixedThread";
-        // TODO 自己实现，好计算任务耗时
-        return java.util.concurrent.Executors.newFixedThreadPool(nThreads, proxyFactory);
+        PThreadPoolExecutor executorService = new PThreadPoolExecutor(nThreads, nThreads,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), factory, name);
+        executorService.setType("FixedThread");
+        return executorService;
     }
 
     public static ExecutorService newCachedThreadPool(String name) {

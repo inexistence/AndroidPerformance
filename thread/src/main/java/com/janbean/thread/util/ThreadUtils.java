@@ -1,6 +1,7 @@
 package com.janbean.thread.util;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.janbean.thread.KeepThread;
 
@@ -15,13 +16,15 @@ public class ThreadUtils {
     }
 
     public static String makeThreadName(String name, String prefix) {
+        Log.i("hjianbin", "makeThreadName "+name+" "+prefix);
         if (!TextUtils.isEmpty(name) && !name.startsWith(MARK) && !TextUtils.isEmpty(prefix)) {
-            return (prefix + "/" + name);
+            return (MARK+prefix + "/" + name);
         }
-        return TextUtils.isEmpty(name) ? prefix : (name.startsWith(MARK) || TextUtils.isEmpty(prefix) ? name : (prefix + "#" + name));
+        return TextUtils.isEmpty(name) ? (MARK + prefix) : (name.startsWith(MARK) || TextUtils.isEmpty(prefix) ? (MARK + name) : (MARK + prefix + "/" + name));
     }
 
     public static Thread setThreadName(final Thread t, final String prefix) {
+        Log.i("hjianbin", "setThreadName " + t.getName() + " prefix " + prefix);
         t.setName(makeThreadName(t.getName(), prefix));
         return t;
     }

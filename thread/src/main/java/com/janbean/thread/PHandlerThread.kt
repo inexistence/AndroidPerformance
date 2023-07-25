@@ -1,16 +1,18 @@
 package com.janbean.thread
 
-import android.os.Handler
 import android.os.HandlerThread
 import com.janbean.thread.util.ThreadTracker
+import com.janbean.thread.util.ThreadUtils
 
 @KeepThread
-class PHandlerThread: HandlerThread {
-    private var mHandler: Handler? = null
+open class PHandlerThread: HandlerThread {
     private var record: ThreadTracker.Record? = null
 
     constructor(name: String): super(name)
     constructor(name: String, priority: Int): super(name, priority)
+
+    constructor(name: String, prefix: String): super(ThreadUtils.makeThreadName(name, prefix))
+    constructor(name: String, priority: Int, prefix: String): super(ThreadUtils.makeThreadName(name, prefix), priority)
 
     override fun start() {
         super.start()

@@ -17,9 +17,12 @@ class HandlerThreadConverter : BaseConverter() {
             to = Method(
                 "com/janbean/thread/PHandlerThread",
                 "<init>",
-                "(Ljava/lang/String;)V",
+                "(Ljava/lang/String;Ljava/lang/String;)V",
                 false
-            )
+            ),
+            beforeReplace = { mv ->
+                putClassNameToArg(classContext, mv)
+            }
         ).transferConstructor(
             from = Method(
                 "android/os/HandlerThread",
@@ -30,9 +33,12 @@ class HandlerThreadConverter : BaseConverter() {
             to = Method(
                 "com/janbean/thread/PHandlerThread",
                 "<init>",
-                "(Ljava/lang/String;I)V",
+                "(Ljava/lang/String;ILjava/lang/String;)V",
                 false
-            )
+            ),
+            beforeReplace = { mv ->
+                putClassNameToArg(classContext, mv)
+            }
         )
     }
 }
