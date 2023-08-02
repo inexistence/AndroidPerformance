@@ -6,14 +6,14 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.janbean.androidperformance.R
-import com.janbean.thread.util.ThreadTracker
+//import com.janbean.thread.util.ThreadTracker
 
 class RecordActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_record)
         val adapter = SimpleAdapter().apply {
-            setData(ThreadTracker.map.map { it.value.toString() })
+//            setData(ThreadTracker.map.map { it.value.toString() })
         }
         findViewById<RecyclerView>(R.id.recycler_view).adapter = adapter
     }

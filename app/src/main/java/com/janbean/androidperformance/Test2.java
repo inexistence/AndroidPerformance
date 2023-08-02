@@ -13,8 +13,6 @@ import java.util.concurrent.TimeUnit;
 import com.janbean.androidperformance.test.ExecutorScheduler;
 import com.janbean.androidperformance.test.NamedThreadFactory;
 import com.janbean.androidperformance.test.UnIdleHandlerThread;
-import com.janbean.thread.PThread;
-import com.janbean.thread.util.ThreadUtils;
 
 public class Test2 {
     private static ExecutorService service = Executors.newFixedThreadPool(5);
@@ -23,6 +21,10 @@ public class Test2 {
         t.setName("Hello");
         return t;
     });
+
+    public static void config(MyThread thread) {
+
+    }
 
     private static ExecutorService executorService = new ThreadPoolExecutor(1, 1, 1,TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("", 1));
 

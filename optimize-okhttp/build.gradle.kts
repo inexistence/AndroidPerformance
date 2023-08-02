@@ -1,24 +1,18 @@
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
-    id(libs.plugins.androidApplication.get().pluginId)
-    id(libs.plugins.kotlinAndroid.get().pluginId)
-//    id("FileProviderPlugin")
-//    id("ThreadTrackPlugin")
-    id("OptimizeOKHttpClientPlugin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    namespace = "com.janbean.androidperformance"
+    namespace = "com.janbean.optimize.okhttp"
     compileSdk = 33
 
     defaultConfig {
-        applicationId = "com.janbean.androidperformance"
         minSdk = 24
-        targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -31,20 +25,17 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
-
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
     }
 }
 
 dependencies {
-    implementation(libs.okhttp)
-    implementation(libs.core.ktx)
-    implementation(libs.appcompat)
-    implementation(libs.material)
+//    implementation(libs.core.ktx)
+    compileOnly(libs.okhttp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "AndroidPerformance"
 include(":app")
+include(":optimize-okhttp")
