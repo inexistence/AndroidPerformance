@@ -28,13 +28,13 @@ public class Test2 {
 
     private static ExecutorService executorService = new ThreadPoolExecutor(1, 1, 1,TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("", 1));
 
-    private static Thread thread = new MyThread(new Runnable() {
-
-        @Override
-        public void run() {
-
-        }
-    });
+//    private static Thread thread = new MyThread(new Runnable() {
+//
+//        @Override
+//        public void run() {
+//
+//        }
+//    });
 
     private static Handler handler;
 
@@ -50,11 +50,11 @@ public class Test2 {
 //    private static ExecutorService service2 = Executors.newSingleThreadExecutor();
 
     public static void test() {
-        try {
-            thread.start();
-        } catch (Exception e) {
-
-        }
+//        try {
+//            thread.start();
+//        } catch (Exception e) {
+//
+//        }
 
         new ExecutorScheduler().schedule(new Runnable() {
             @Override

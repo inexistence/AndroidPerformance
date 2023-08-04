@@ -7,15 +7,15 @@ object GlobalOkHttpBuilder {
 //        DefaultBuilderConfigure()
 //    }
 
-    private var creator: BuilderConfigure? = null
+    private var configure: BuilderConfigure? = null
 
     @JvmStatic
-    fun setDefaultBuilderCreator(creator: BuilderConfigure) {
-        this.creator = creator
+    fun setDefaultBuilderConfigure(configure: BuilderConfigure) {
+        this.configure = configure
     }
 
     @JvmStatic
     fun configBuilder(builder: OkHttpClient.Builder) {
-        creator?.configDefaultBuilder(builder)
+        configure?.configDefaultBuilder(builder)
     }
 }

@@ -23,7 +23,7 @@ class MyApplication: Application() {
     override fun onCreate() {
         super.onCreate()
     
-        GlobalOkHttpBuilder.setDefaultBuilderCreator(object : BuilderConfigure {
+        GlobalOkHttpBuilder.setDefaultBuilderConfigure(object : BuilderConfigure {
             override fun configDefaultBuilder(builder: OkHttpClient.Builder) {
                 builder.dispatcher(okHttpDispatcher)
                 builder.connectionPool(okHttpConnectionPool)
