@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.janbean.androidperformance.test.ExecutorScheduler;
 import com.janbean.androidperformance.test.NamedThreadFactory;
+import com.janbean.androidperformance.test.Test;
 import com.janbean.androidperformance.test.UnIdleHandlerThread;
 
 public class Test2 {
@@ -121,5 +122,13 @@ public class Test2 {
             }
             System.out.println("test3");
         });
+    }
+
+    public void test2() {
+        if (Test.getTest()) {
+            throw new SecurityException("test");
+        }
+
+        Log.d("test3", "test3");
     }
 }

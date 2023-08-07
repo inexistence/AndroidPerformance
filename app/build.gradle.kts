@@ -2,10 +2,10 @@
 plugins {
     id(libs.plugins.androidApplication.get().pluginId)
     id(libs.plugins.kotlinAndroid.get().pluginId)
-//    id("FileProviderPlugin")
+    id("FileProviderPlugin")
 //    id("ThreadTrackPlugin")
-    id("OptimizeOKHttpClientPlugin")
-    id("OptimizeFirebasePlugin")
+//    id("OptimizeOKHttpClientPlugin")
+//    id("OptimizeFirebasePlugin")
 }
 
 android {

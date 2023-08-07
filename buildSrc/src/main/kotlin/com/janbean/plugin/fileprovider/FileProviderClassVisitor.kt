@@ -87,11 +87,27 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
         private val L1 = Label()
         private val L2 = Label()
         private val L3 = Label()
+        private val L_CHECK_0 = Label()
         private val L_CHECK_END = Label()
 
         override fun onMethodEnter() {
             println("AttachInfoMethodVisitor: onMethodEnter")
+            visitLdcInsn("HookFileProvider")
+            visitLdcInsn(name ?: "unknown method")
+            visitMethodInsn(INVOKESTATIC, "android/util/Log", "i", "(Ljava/lang/String;Ljava/lang/String;)I", false)
 
+            // 如果ProviderInfo.exported==true,抛异常
+            visitVarInsn(ALOAD, 2)
+            getField(Type.getType("Landroid/content/pm/ProviderInfo;"),"exported", Type.BOOLEAN_TYPE)
+            visitJumpInsn(IFEQ, L_CHECK_0) // 如果没跳去L_CHECK_0，会继续往下走
+            // throw SecurityException("Provider must not be exported")
+            visitTypeInsn(NEW, "java/lang/SecurityException")
+            visitInsn(DUP)
+            visitLdcInsn("Provider must not be exported")
+            visitMethodInsn(INVOKESPECIAL, "java/lang/SecurityException","<init>","(Ljava/lang/String;)V", false)
+            visitInsn(ATHROW)
+
+            visitLabel(L_CHECK_0)
             // 如果ProviderInfo.grantUriPermissions==false,抛异常
             visitVarInsn(ALOAD, 2)
             getField(Type.getType("Landroid/content/pm/ProviderInfo;"),"grantUriPermissions", Type.BOOLEAN_TYPE)
@@ -174,16 +190,19 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
         private val L0 = Label()
 
         override fun onMethodEnter() {
+            visitLdcInsn("HookFileProvider")
+            visitLdcInsn(name ?: "unknown method")
+            visitMethodInsn(INVOKESTATIC, "android/util/Log", "i", "(Ljava/lang/String;Ljava/lang/String;)I", false)
+
             loadThis()
-            getField(Type.getType("Landroidx/core/content/FileProvider;"), "mStrategy", Type.getType("Lcom/janbean/androidperformance/Test2${'$'}PathStrategy;"))
+            getField(Type.getType("Landroidx/core/content/FileProvider;"), "mStrategy", Type.getType("Landroidx/core/content/FileProvider${'$'}PathStrategy;"))
             visitJumpInsn(IFNONNULL, L0)
             // mStrategy为null，需要初始化
             loadThis()
             loadThis()
-            loadThis()
             visitMethodInsn(
                 INVOKEVIRTUAL,
-                "Landroidx/core/content/FileProvider;",
+                "androidx/core/content/FileProvider",
                 "getContext",
                 "()Landroid/content/Context;",
                 false
@@ -192,8 +211,8 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
             getField(Type.getType("Landroidx/core/content/FileProvider;"), "authority", Type.getType("Ljava/lang/String;"))
             loadThis()
             getField(Type.getType("Landroidx/core/content/FileProvider;"), "mResourceId", Type.INT_TYPE)
-            visitMethodInsn(INVOKEVIRTUAL, "Landroidx/core/content/FileProvider;", "getPathStrategy", "(Landroid/content/Context;Ljava/lang/String;I)Lcom/janbean/androidperformance/Test2${'$'}PathStrategy;", false)
-            putField(Type.getType("Landroidx/core/content/FileProvider;"), "mStrategy", Type.getType("Lcom/janbean/androidperformance/Test2${'$'}PathStrategy;"))
+            visitMethodInsn(INVOKESTATIC, "androidx/core/content/FileProvider", "getPathStrategy", "(Landroid/content/Context;Ljava/lang/String;I)Landroidx/core/content/FileProvider${'$'}PathStrategy;", false)
+            putField(Type.getType("Landroidx/core/content/FileProvider;"), "mStrategy", Type.getType("Landroidx/core/content/FileProvider${'$'}PathStrategy;"))
 
             visitLabel(L0)
             super.onMethodEnter()

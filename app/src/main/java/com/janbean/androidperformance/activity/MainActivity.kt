@@ -7,9 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.janbean.androidperformance.R
-import com.janbean.androidperformance.Test2
 import com.janbean.androidperformance.test.DebugFileLogger
+import java.io.File
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadFactory
@@ -58,7 +59,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         createAndAddFeatureButton("startThread") {
-            Test2.test()
+//            Test2.test()
+            val dbFile = File(filesDir, "log/star_com_imo_android_imoimhd_2023061200.xlog.log")
+            val uri = FileProvider.getUriForFile(this, packageName+".fileprovider", dbFile)
+            Log.i("hjianbin", "dbPath=$uri")
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                setDataAndType(uri, "text/plain")
+            }
+            startActivity(intent)
         }
 
         createAndAddFeatureButton("executorSynchronousQueue") {

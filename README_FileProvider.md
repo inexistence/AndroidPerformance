@@ -18,7 +18,10 @@ plugins {
 ```
     @Override // android.content.ContentProvider
     public void attachInfo(Context context, ProviderInfo info) {
-        if (info.grantUriPermissions) {
+        if (!info.exported) {
+            if (!info.grantUriPermissions) {
+                throw new SecurityException("Provider must grant uri permissions");
+            }
             info.grantUriPermissions = false;
             try {
                 super.attachInfo(context, info);
@@ -42,7 +45,7 @@ plugins {
                 return;
             }
         }
-        throw new SecurityException("Provider must grant uri permissions");
+        throw new SecurityException("Provider must not be exported");
     }
 
     @Override // android.content.ContentProvider
