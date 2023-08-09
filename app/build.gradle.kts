@@ -5,7 +5,7 @@ plugins {
     id("FileProviderPlugin")
 //    id("ThreadTrackPlugin")
 //    id("OptimizeOKHttpClientPlugin")
-//    id("OptimizeFirebasePlugin")
+    id("OptimizeFirebasePlugin")
 }
 
 android {

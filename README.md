@@ -3,7 +3,8 @@
 ### 清单
 
 **分析**
-* - [ ] 线程使用追踪
+
+* - [x] 线程使用追踪
 
 **优化**
 * - [x] [FileProvider优化](./README_FileProvider.md)

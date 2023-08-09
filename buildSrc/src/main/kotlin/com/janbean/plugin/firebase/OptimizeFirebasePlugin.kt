@@ -3,6 +3,7 @@ package com.janbean.plugin.firebase
 import com.android.build.api.instrumentation.FramesComputationMode
 import com.android.build.api.instrumentation.InstrumentationScope
 import com.android.build.api.variant.AndroidComponentsExtension
+import com.janbean.plugin.util.LibVersionChecker
 import com.janbean.plugin.util.Log
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -23,24 +24,20 @@ class OptimizeFirebasePlugin : Plugin<Project> {
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
         project.dependencies.add("implementation", project.project(":optimize-firebase"))
 
-        project.afterEvaluate {
-            for (config in this.configurations) {
-                val firebaseMessaging =
-                    config.dependencies.firstOrNull { it.group == "com.google.firebase" && it.name == "firebase-messaging" }
-                        ?: continue
-                val firebaseVersion = firebaseMessaging.version
-                Log.i(TAG, "find com.google.firebase.firebase-messaging:$firebaseVersion")
-                if (firebaseVersion != "23.2.0") {
-                    throw IllegalArgumentException("不确定是否支持该版本(com.google.firebase.firebase-messaging:${firebaseVersion})，可以修改此处代码允许执行后检查`com.google.android.gms.cloudmessaging.CloudMessagingReceiver#getBroadcastExecutor`是否符合预期")
-                }
-            }
-        }
-
         androidComponents.onVariants { variant ->
+            LibVersionChecker.checkDependienceLibVersion(
+                variant,
+                "com.google.firebase",
+                "firebase-messaging",
+                arrayOf("23.2.0")
+            ) { e ->
+                Log.i(TAG, e.message ?: "unknown error")
+                throw e
+            }
             variant.instrumentation.transformClassesWith(
                 FirebaseTransform::class.java,
                 InstrumentationScope.ALL
-            ) {}
+            ){}
             variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_CLASSES)
         }
     }
