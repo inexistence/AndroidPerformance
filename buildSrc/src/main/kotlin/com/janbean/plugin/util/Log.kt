@@ -12,4 +12,8 @@ object Log {
             println("$tag: $msg")
         }
     }
+
+    fun e(tag: String, msg: String) {
+        println("$tag: $msg")
+    }
 }

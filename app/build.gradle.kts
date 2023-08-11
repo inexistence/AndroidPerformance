@@ -8,6 +8,10 @@ plugins {
     id("OptimizeFirebasePlugin")
 }
 
+fileProviderConfig {
+    version = "1.9.0"
+}
+
 android {
     namespace = "com.janbean.androidperformance"
     compileSdk = 33

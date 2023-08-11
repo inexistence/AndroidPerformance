@@ -1,5 +1,7 @@
 package com.janbean.plugin.fileprovider
 
+import com.janbean.plugin.util.LibVersionChecker
+import org.gradle.api.provider.Property
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
@@ -7,10 +9,7 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.AdviceAdapter
 
-
-
-
-class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
+class FileProviderClassVisitor(nextVisitor: ClassVisitor, val fileProviderVersion: Property<String>) :
     ClassVisitor(Opcodes.ASM5, nextVisitor) {
     companion object {
         val ATTACH_INFO = arrayOf(
@@ -36,20 +35,7 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
         val NEED_CREATE_STRATEGY = arrayOf(QUERY, GET_TYPE, DELETE, OPEN_FILE)
     }
 
-    override fun visit(
-        version: Int,
-        access: Int,
-        name: String?,
-        signature: String?,
-        superName: String?,
-        interfaces: Array<out String>?
-    ) {
-        println("FileProviderClassVisitor: visit")
-        super.visit(version, access, name, signature, superName, interfaces)
-    }
-
     override fun visitEnd() {
-        println("FileProviderClassVisitor: visitEnd")
         // 生成成员变量authority
         val fv = this.cv.visitField(Opcodes.ACC_PRIVATE, "authority", "Ljava/lang/String;", null, "")
         fv?.visitEnd()
@@ -67,7 +53,7 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
         val newMethodVisitor = if (name == ATTACH_INFO[0] && descriptor == ATTACH_INFO[1]) {
             AttachInfoMethodVisitor(methodVisitor, access, name, descriptor)
         } else if (NEED_CREATE_STRATEGY.firstOrNull { it[0] == name && it[1] == descriptor } != null) {
-            CreateStrategyMethodVisitor(methodVisitor, access, name, descriptor)
+            CreateStrategyMethodVisitor(methodVisitor, access, name, descriptor, fileProviderVersion)
         } else {
             methodVisitor
         }
@@ -91,7 +77,6 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
         private val L_CHECK_END = Label()
 
         override fun onMethodEnter() {
-            println("AttachInfoMethodVisitor: onMethodEnter")
             visitLdcInsn("HookFileProvider")
             visitLdcInsn(name ?: "unknown method")
             visitMethodInsn(INVOKESTATIC, "android/util/Log", "i", "(Ljava/lang/String;Ljava/lang/String;)I", false)
@@ -135,7 +120,6 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
         // 访问局部变量和操作数栈
         // 方法结束前
         override fun visitMaxs(maxStack: Int, maxLocals: Int) {
-            println("AttachInfoMethodVisitor: visitMaxs maxStack=$maxStack maxLocals=$maxLocals")
             // try结束
             visitLabel(L1)
             visitJumpInsn(GOTO, L3)
@@ -176,7 +160,6 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
 
         // 方法退出时，return前
         override fun onMethodExit(opcode: Int) {
-            println("AttachInfoMethodVisitor: onMethodExit opcode=$opcode")
             super.onMethodExit(opcode)
         }
     }
@@ -185,7 +168,8 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
         val methodVisitor: MethodVisitor,
         access: Int,
         name: String?,
-        descriptor: String?
+        descriptor: String?,
+        val fileProviderVersion: Property<String>,
     ) : AdviceAdapter(Opcodes.ASM5, methodVisitor, access, name, descriptor) {
         private val L0 = Label()
 
@@ -209,9 +193,29 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor) :
             )
             loadThis()
             getField(Type.getType("Landroidx/core/content/FileProvider;"), "authority", Type.getType("Ljava/lang/String;"))
-            loadThis()
-            getField(Type.getType("Landroidx/core/content/FileProvider;"), "mResourceId", Type.INT_TYPE)
-            visitMethodInsn(INVOKESTATIC, "androidx/core/content/FileProvider", "getPathStrategy", "(Landroid/content/Context;Ljava/lang/String;I)Landroidx/core/content/FileProvider${'$'}PathStrategy;", false)
+            if (LibVersionChecker.compareVersion(fileProviderVersion.get(), "1.8.0") >= 0) {
+                loadThis()
+                getField(
+                    Type.getType("Landroidx/core/content/FileProvider;"),
+                    "mResourceId",
+                    Type.INT_TYPE
+                )
+                visitMethodInsn(
+                    INVOKESTATIC,
+                    "androidx/core/content/FileProvider",
+                    "getPathStrategy",
+                    "(Landroid/content/Context;Ljava/lang/String;I)Landroidx/core/content/FileProvider${'$'}PathStrategy;",
+                    false
+                )
+            } else {
+                visitMethodInsn(
+                    INVOKESTATIC,
+                    "androidx/core/content/FileProvider",
+                    "getPathStrategy",
+                    "(Landroid/content/Context;Ljava/lang/String;)Landroidx/core/content/FileProvider${'$'}PathStrategy;",
+                    false
+                )
+            }
             putField(Type.getType("Landroidx/core/content/FileProvider;"), "mStrategy", Type.getType("Landroidx/core/content/FileProvider${'$'}PathStrategy;"))
 
             visitLabel(L0)
