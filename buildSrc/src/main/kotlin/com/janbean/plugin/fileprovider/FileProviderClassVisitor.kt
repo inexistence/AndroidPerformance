@@ -80,6 +80,7 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor, val fileProviderVersio
             visitLdcInsn("HookFileProvider")
             visitLdcInsn(name ?: "unknown method")
             visitMethodInsn(INVOKESTATIC, "android/util/Log", "i", "(Ljava/lang/String;Ljava/lang/String;)I", false)
+            visitInsn(POP);
 
             // 如果ProviderInfo.exported==true,抛异常
             visitVarInsn(ALOAD, 2)
@@ -125,18 +126,21 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor, val fileProviderVersio
             visitJumpInsn(GOTO, L3)
             // catch开始
             visitLabel(L2)
-            // Throwable.printStackTrace()
-            visitFrame(F_NEW, 0, null, 1, arrayOf<Any>("java/lang/Throwable"))
-            val local = newLocal(Type.DOUBLE_TYPE)
-            visitVarInsn(ASTORE, local)
-            visitVarInsn(ALOAD, local)
-            visitMethodInsn(
-                INVOKEVIRTUAL,
-                "java/lang/Throwable",
-                "printStackTrace",
-                "()V",
-                false
-            )
+
+            visitVarInsn(ASTORE, 1)
+            visitLdcInsn("HookFileProvider")
+            visitTypeInsn(NEW, "java/lang/StringBuilder")
+            visitInsn(DUP)
+            visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false)
+            visitLdcInsn("catch $name error: ")
+            visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false)
+            visitVarInsn(ALOAD, 1)
+            visitMethodInsn(INVOKEVIRTUAL, "java/lang/Throwable", "getMessage", "()Ljava/lang/String;", false);
+            visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+            visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
+            visitMethodInsn(INVOKESTATIC, "android/util/Log", "i", "(Ljava/lang/String;Ljava/lang/String;)I", false);
+            visitInsn(POP);
+
             visitJumpInsn(GOTO, L3)
             visitLabel(L3)
             // 存储ProviderInfo.authority
@@ -177,6 +181,7 @@ class FileProviderClassVisitor(nextVisitor: ClassVisitor, val fileProviderVersio
             visitLdcInsn("HookFileProvider")
             visitLdcInsn(name ?: "unknown method")
             visitMethodInsn(INVOKESTATIC, "android/util/Log", "i", "(Ljava/lang/String;Ljava/lang/String;)I", false)
+            visitInsn(POP);
 
             loadThis()
             getField(Type.getType("Landroidx/core/content/FileProvider;"), "mStrategy", Type.getType("Landroidx/core/content/FileProvider${'$'}PathStrategy;"))
