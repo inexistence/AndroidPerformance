@@ -17,7 +17,7 @@
   * [ ] 专门开一个线程用来创建线程，因为创建线程也有开销
   * [ ] 全局使用一个大线程池（可选）
 * [ ] SharedPreference卡顿优化，非进程安全
-* [ ] @FastNative：减少native调用耗时，非线程安全？
+* [x] @FastNative, @CriticalNative，适合用于耗时较短的高频无锁方法
 * [ ] 使用Dispatcher.Main崩溃&卡顿
 * [x] [OKHttpClient 全局默认配置](./README_Optimize_OKHttp.md)
 

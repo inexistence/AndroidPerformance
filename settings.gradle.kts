@@ -19,3 +19,4 @@ rootProject.name = "AndroidPerformance"
 include(":app")
 include(":optimize-okhttp")
 include(":optimize-firebase")
+include(":common")
