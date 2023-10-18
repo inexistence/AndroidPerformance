@@ -3,14 +3,10 @@ package com.janbean.plugin.fileprovider
 import com.android.build.api.instrumentation.FramesComputationMode
 import com.android.build.api.instrumentation.InstrumentationScope
 import com.android.build.api.variant.AndroidComponentsExtension
+import com.janbean.plugin.util.LibVersionChecker
 import com.janbean.plugin.util.Log
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.component.ModuleComponentSelector
-import org.gradle.api.artifacts.result.ResolvedDependencyResult
-import org.gradle.kotlin.dsl.configure
-import com.janbean.plugin.util.LibVersionChecker
 
 class FileProviderPlugin : Plugin<Project> {
     companion object {
